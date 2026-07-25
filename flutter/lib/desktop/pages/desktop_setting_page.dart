@@ -2449,7 +2449,7 @@ class _AboutState extends State<_About> {
                         .marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://rustdesk.com/privacy.html');
+                    launchUrlString('https://takoapp.duckdns.org');
                   },
                   child: Text(
                     translate('Privacy Statement'),
@@ -2457,7 +2457,7 @@ class _AboutState extends State<_About> {
                   ).marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://rustdesk.com');
+                    launchUrlString('https://takoapp.duckdns.org');
                   },
                   child: Text(
                     translate('Website'),
