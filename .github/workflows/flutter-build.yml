@@ -826,6 +826,8 @@ jobs:
           APPDIR="./flutter/build/macos/Build/Products/Release"
           mv "$APPDIR/RustDesk.app" "$APPDIR/Tako.app"
           /usr/libexec/PlistBuddy -c "Set :CFBundleName Tako" "$APPDIR/Tako.app/Contents/Info.plist"
+          # Re-sign (ad-hoc) after editing Info.plist, else the broken seal makes dyld refuse to load FlutterMacOS.framework ("different Team IDs") and the app crashes at launch.
+          codesign --force --deep --sign - "$APPDIR/Tako.app"
           create-dmg --volname "Tako" --icon "Tako.app" 200 190 --hide-extension "Tako.app" --window-size 800 400 --app-drop-link 600 185 rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg "$APPDIR/Tako.app"
 
       - name: Upload unsigned macOS app
