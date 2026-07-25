@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=RustDesk
-GenericName=Remote Desktop
+Name=Tako
+GenericName=Tako Remote Desktop
 Comment=Remote Desktop
 Exec=rustdesk %u
 Icon=rustdesk
