@@ -575,7 +575,7 @@ Future<bool?> loginDialog() async {
 
     thirdAuthWidget() => Obx(() {
           return Offstage(
-            offstage: loginOptions.isEmpty,
+            offstage: true, // Tako: email+password only, no SSO
             child: Column(
               children: [
                 const SizedBox(
