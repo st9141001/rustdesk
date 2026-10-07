@@ -11,7 +11,7 @@ pub use platform::{
 mod server;
 #[cfg(not(any(target_os = "ios")))]
 pub use self::server::*;
-mod client;
+pub mod client;
 mod lan;
 #[cfg(not(any(target_os = "ios")))]
 mod rendezvous_mediator;
@@ -44,7 +44,7 @@ pub mod core_main;
 mod custom_server;
 mod lang;
 #[cfg(not(any(target_os = "android", target_os = "ios")))]
-mod port_forward;
+pub mod port_forward;
 
 #[cfg(all(feature = "flutter", feature = "plugin_framework"))]
 #[cfg(not(any(target_os = "android", target_os = "ios")))]

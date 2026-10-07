@@ -20,6 +20,11 @@ path = "src/naming.rs"
 name = "service"
 path = "src/service.rs"
 
+# Tako: headless port-forward over the Tako channel (agent plane transport)
+[[bin]]
+name = "tako-tunnel"
+path = "src/tako_tunnel.rs"
+
 [features]
 inline = []
 use_samplerate = ["samplerate"]

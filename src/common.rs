@@ -1080,8 +1080,17 @@ fn get_api_server_(api: String, custom: String) -> String {
             return format!("http://{}", s);
         }
     }
+    // Tako: the rendezvous server is baked in (hbb_common RENDEZVOUS_SERVERS), which
+    // the custom-server lookup above never sees, so without this the client would
+    // silently talk to admin.rustdesk.com and login / device sync would break.
+    if !TAKO_API_SERVER.is_empty() {
+        return TAKO_API_SERVER.to_owned();
+    }
     "https://admin.rustdesk.com".to_owned()
 }
+
+/// Tako account/API backend (rustdesk-api behind Caddy TLS on the same host as hbbs).
+pub const TAKO_API_SERVER: &str = "https://tako-st9141001.duckdns.org";
 
 #[inline]
 pub fn is_public(url: &str) -> bool {

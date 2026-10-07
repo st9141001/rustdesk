@@ -336,10 +336,12 @@ jobs:
           sed -i '/dpiAware/d' res/manifest.xml
           pushd ./libs/portable
           pip3 install -r requirements.txt
-          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/rustdesk.exe
+          python3 ./generate.py -f ../../rustdesk/ -o . -e ../../rustdesk/Tako.exe
           popd
           mkdir -p ./SignOutput
           mv ./target/release/rustdesk-portable-packer.exe ./SignOutput/rustdesk-${{ env.VERSION }}-${{ matrix.job.arch }}.exe
+          # Tako agent plane: headless tunnel binary
+          cp ./target/release/tako-tunnel.exe ./SignOutput/tako-tunnel-windows-${{ matrix.job.arch }}.exe
 
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
@@ -351,7 +353,8 @@ jobs:
         if: env.UPLOAD_ARTIFACT == 'true'
         run: |
           pushd ./res/msi
-          python preprocess.py --arp -d ../../rustdesk
+          # Tako: the exe is Tako.exe now; preprocess needs the matching app name
+          python preprocess.py --arp -d ../../rustdesk --app-name Tako
           nuget restore msi.sln
           $msiPlatform = if ('${{ matrix.job.arch }}' -eq 'aarch64') { 'ARM64' } else { 'x64' }
           msbuild msi.sln -p:Configuration=Release -p:Platform=$msiPlatform /p:TargetVersion=Windows10
@@ -374,6 +377,7 @@ jobs:
           files: |
             ./SignOutput/rustdesk-*.msi
             ./SignOutput/rustdesk-*.exe
+            ./SignOutput/tako-tunnel-*.exe
 
   # The fallback for the flutter version, we use Sciter for 32bit Windows.
   build-for-windows-sciter:
@@ -870,6 +874,30 @@ jobs:
           tag_name: ${{ env.TAG_NAME }}
           files: |
             rustdesk*-${{ matrix.job.arch }}.dmg
+
+      # Tako agent plane: headless tunnel binary (same cargo build as the app)
+      - name: Package tako-tunnel
+        if: env.UPLOAD_ARTIFACT == 'true'
+        run: |
+          cp target/release/tako-tunnel tako-tunnel-macos-${{ matrix.job.arch }}
+          chmod +x tako-tunnel-macos-${{ matrix.job.arch }}
+          ./tako-tunnel-macos-${{ matrix.job.arch }} --help || true
+
+      - name: Upload tako-tunnel
+        if: env.UPLOAD_ARTIFACT == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: tako-tunnel-macos-${{ matrix.job.arch }}
+          path: tako-tunnel-macos-${{ matrix.job.arch }}
+
+      - name: Publish tako-tunnel
+        if: env.UPLOAD_ARTIFACT == 'true'
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
+        with:
+          prerelease: true
+          tag_name: ${{ env.TAG_NAME }}
+          files: |
+            tako-tunnel-macos-${{ matrix.job.arch }}
 
   publish_unsigned:
     needs:
@@ -1592,7 +1620,8 @@ jobs:
               export JOBS=""
             fi
             echo $JOBS
-            cargo build --locked --lib $JOBS --features hwcodec,flutter,unix-file-copy-paste --release
+            cargo build --locked --lib --bin tako-tunnel $JOBS --features hwcodec,flutter,unix-file-copy-paste --release
+            cp target/release/tako-tunnel /workspace/tako-tunnel-linux-${{ matrix.job.arch }}
             rm -rf target/release/deps target/release/build
             rm -rf ~/.cargo
 
@@ -1691,6 +1720,7 @@ jobs:
           files: |
             rustdesk-*.deb
             rustdesk-*.rpm
+            tako-tunnel-linux-${{ matrix.job.arch }}
 
       - name: Upload deb
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
