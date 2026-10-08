@@ -1493,8 +1493,8 @@ jobs:
 
       - name: Disable rust bridge build
         run: |
-          # only build cdylib
-          sed -i  "s/\[\"cdylib\", \"staticlib\", \"rlib\"\]/\[\"cdylib\"\]/g" Cargo.toml
+          # only build cdylib (+ rlib, which the tako-tunnel bin links against)
+          sed -i  "s/\[\"cdylib\", \"staticlib\", \"rlib\"\]/\[\"cdylib\", \"rlib\"\]/g" Cargo.toml
 
       - name: Restore bridge files
         if: matrix.job.arch == 'x86_64' || env.UPLOAD_ARTIFACT == 'true'
