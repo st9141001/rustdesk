@@ -78,6 +78,11 @@ fn install_android_deps() {
 }
 
 fn main() {
+    // Tako: the tako-tunnel bin links libhwcodec statically; its zlib symbols are
+    // otherwise only pulled in by the cdylib's own link line (linux: "DSO missing").
+    #[cfg(target_os = "linux")]
+    println!("cargo:rustc-link-lib=z");
+
     hbb_common::gen_version();
     install_android_deps();
     #[cfg(all(windows, feature = "inline"))]
